@@ -1,8 +1,14 @@
 from Tkinter import *
 import sqlite3
 import pandas
+import matplotlib
+import numpy as np
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 import matplotlib.dates as mdates
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 #connects to database
@@ -12,15 +18,15 @@ cursor = dbConnection.cursor()
 
 
 #imports quandl csv data into sqlite
-# df = pandas.read_csv('Gross_national _product.csv')
-# df.to_sql('Gross National Product (1930-2015)', dbConnection)
+# df = pandas.read_csv('30_year_fixed_mortgage_rates.csv')
+# df.to_sql('30-year Fixed Mortgage Rates (1971-2017)', dbConnection)
 
 
 #main frame
 root = Tk()
 root.title('EconToolLab')
-root.geometry('900x600')
-# root['bg'] = '#E8E8E8'
+root.geometry('1000x800')
+
 
 
 #top level menu for the main window
@@ -42,42 +48,99 @@ helpMenu.add_command(label = 'Help')
 navBar.add_cascade(label = 'About the EconToolLab', menu = helpMenu)
 root.config(menu=navBar)
 
-
-
-
-# dropdown menu for economic variables
-toolsFrame = Frame(root)
-var = StringVar()
-
-
-econIndicators = {'GDP': ['Real Gross Domestic Product (1947-2016)', 'Potential GDP (1949-2027)', 'Lagging Index (1948 - 2017)'],
-				   'Inflation and price': ['Annual Inflation Rate (1914-2017)', 
-				   'Chained CPI (1999-2017)', 'Misery Index (1914-2017)'
-				   ],
-				   'Labor': ['Natural rate of Unemployement','Unemployemnet rate by gender','Labor force participation rate','Employment rate(non-farm 1939-2017)'],
-				   'Housing': ['Housing Market Index (1985-2017)', 'Fixed 30 year mortage rates','Historical ARM Indexes: 3 Year CMT'],
-				   'Exports/Imports': ['Imports/Exports rates(1989-2016)'],
-				   'Monetary Data': ['Share of Household Consumption'],
-				   'Industry': ['Industry index by sector'],
-				   'Investment':['Angel Investment', 'Angel Investment by sector'],
-				   'Interest Rates': ['Interest Rate'],
-				   'Equity':[ 'NASDAQ index']
-
-	
-}
- 
-#declaring query variables
 chosenIndicator = StringVar()
 checkedMax  = IntVar()
 checkedMin = IntVar()
 checkedMean = IntVar()
 checkedStd = IntVar()
+checkedVar = IntVar()
+checkedRange = IntVar()
+checkedMedian = IntVar()
+checkedMed = IntVar()
 values = []
 dates = []
+maxim = IntVar()
+label = StringVar()
+
+
+toolsFrame = Frame(root)
+var = StringVar()
+
+
+def query ():
+  cursor.execute('SELECT * from [' + chosenIndicator.get()+'] order by date asc')
+  for column in cursor:
+    print column[0],column[1], column[2], '\n'
+    dates.append(str(column[1]))
+    values.append(column[2])
+    datesValues = np.column_stack((dates, values))
+    print datesValues
+    label = StringVar()
+    for date in dates:
+      label.set(date)
+    dataLabel = Label(toolsFrame, text = datesValues).grid()
+
+  x = mdates.datestr2num(dates)
+  y = values
+  axes = plot.add_subplot(111)
+  axes.plot(x, y)
+  axes.xaxis_date()
+  canvas.show() 
+  
+  if checkedMax.get() == 1:
+    maxim = np.max(values)
+    print 'Maximum value is', maxim
+
+  if checkedMin.get() == 1:
+    minim = np.min(values)
+    print 'Minimum value is', minim
+  
+
+  if checkedMean.get() == 1:
+    mean = np.average(values)
+    print 'Average is', mean
+  
+  if checkedStd.get() == 1:
+    stdDev = np.std(values)
+    print 'Standard deviation is ', stdDev
+  
+  if checkedMed.get() == 1:
+    median = np.median(values)
+    print 'Median is ', median
+
+  if checkedRange.get() == 1:
+    rang = np.max(values) - np.min(values)
+    print 'Range is ', rang
+
+  
 
 
 
-chosenIndicator.set('Real Gross Domestic Product (1947-2016)')
+# nested dropdown menu for economic variables
+econIndicators = {'GDP': ['Real Gross Domestic Product (1930-2016)', 
+           'Potential GDP (1949-2027)', 'Lagging Index (1948 - 2017)'],
+				   'Inflation and price': ['Annual Inflation Rate (1914-2017)', 
+				   'Chained CPI (1999-2017)', 'Misery Index (1914-2017)',
+           'Producer Price Index for Commodities (1994-2017)'
+				   ],
+				   'Labor': ['Labor force participation (1948-2017)','Employment rate(non-farm 1939-2017)', 
+           'Employment rate for women (1964-2017)',
+           'Unemployment rate (1948-2017)'],
+				   'Housing': ['Housing Market Index (1985-2017)',
+           '30-year Fixed Mortgage Rates (1971-2017)',
+           'Annual Rate for Total Construction (2002-2016)'],
+				   'Exports/Imports': ['Imports/Exports rates(1989-2016)'],
+				   'Monetary Data': ['M1 Money stock (1975-2017)'],
+				   'Industry': ['Manufacturing and Trade Inventories and Sales (1992-2017)'],
+				   'Investment':['Angel investment by sector (2002-2015)'],
+				   'Equity':['S&P 500 index (1950-2017)', 'US Treasury Long Term Rates (2000-2017)']
+
+	
+}
+ 
+
+
+chosenIndicator.set('Real Gross Domestic Product (1930-2016)') #default indicator
 nestedMenu = Menubutton(toolsFrame, textvariable = chosenIndicator)
 mainMenu = Menu(nestedMenu, tearoff= False)
 nestedMenu.config(menu = mainMenu)
@@ -92,72 +155,39 @@ for indicator in(econIndicators.keys()):
 nestedMenu.grid(columnspan = 2, sticky = W, padx = (4,10), pady = (18, 0))
 
 
-#creates a database query depending on the chosen economic indicator
-def query ():
-  cursor.execute('SELECT * from [' + chosenIndicator.get()+'] order by date asc')
-  for column in cursor:
-  	print column[0],column[1], column[2], '\n'
-  	dates.append(str(column[1]))
-  	values.append(int(column[2]))
-  	print dates
-  	print values
-  x = mdates.datestr2num(dates)
-  y = values
-  fig, axes = plt.subplots()
-  axes.plot(x, y)
-  axes.xaxis_date()
-  fig.autofmt_xdate() 
-  
-  if checkedMax.get() == 1:
-  	cursor.execute('SELECT max(value), date from [' + chosenIndicator.get()+']')
-  	for column in cursor:
-  		print 'maximum value is ', column[0], 'in ', column[1], '\n'
-
-  if checkedMin.get() == 1:
-  	cursor.execute('SELECT min(value), date from [' + chosenIndicator.get()+']')
-  	for column in cursor:
-  		print 'minimum value is ', column[0], 'in ', column[1], '\n'
-  
-
-  if checkedMean.get() == 1:
-  	cursor.execute('SELECT AVG(value), date from [' + chosenIndicator.get()+']')
-  	for column in cursor:
-  		print 'Average value is ', column[0], '\n'
-
-
-  
-  plt.show() 
-
-
-
-
 
 #checkbuttons for statistical tools
-variance = Checkbutton(toolsFrame,  onvalue=1, offvalue=0, text = 'Variance').grid(row = 2,column = 0, pady=(15,0), padx = (8,0), sticky = W)
+variance = Checkbutton(toolsFrame,  onvalue=1, variable = checkedVar, offvalue=0, text = 'Variance').grid(row = 2,column = 0, pady=(5,0), padx = (8,0), sticky = W)
 
-std = Checkbutton(toolsFrame, variable = checkedStd, onvalue=1, offvalue=0, text = 'Std.Deviation').grid(row = 2, column = 1, pady=(15,0), padx = (8,0), sticky= W)
+std = Checkbutton(toolsFrame, variable = checkedStd, onvalue=1, offvalue=0, text = 'Std.Deviation').grid(row = 2, column = 1, pady=(5,0), padx = (8,0), sticky= W)
 
 mean = Checkbutton(toolsFrame, variable = checkedMean, onvalue=1, offvalue=0, text = 'Mean').grid(row = 3, column = 0, sticky = W, padx = (8,0))
-median = Checkbutton(toolsFrame,  onvalue=1, offvalue=0, text = 'Median').grid(row = 3, column = 1, sticky = W, padx = (8,0))
+median = Checkbutton(toolsFrame,  variable = checkedMed, onvalue=1, offvalue=0, text = 'Median').grid(row = 3, column = 1, sticky = W, padx = (8,0))
 
 
 minValue = Checkbutton(toolsFrame,  variable = checkedMin, onvalue=1, offvalue=0, text = 'Minimum').grid(row = 4, column = 0, sticky = W, padx = (8,0))
 maxValue = Checkbutton(toolsFrame, variable = checkedMax, onvalue=1, offvalue=0, text = 'Maximum').grid(row = 4, column = 1, sticky = W, padx = (8,0))
 
-rangeValue = Checkbutton(toolsFrame,  onvalue=1, offvalue=0, text = 'Range').grid(row = 5, column = 0, sticky = W, padx = (8,0), pady = (0,20))
+rangeValue = Checkbutton(toolsFrame,  variable = checkedRange, onvalue=1, offvalue=0, text = 'Range').grid(row = 5, column = 0, sticky = W, padx = (8,0), pady = (0,20))
 
 submitButton = Button(toolsFrame, text = 'Submit', command = query)
 submitButton.grid(row = 6, column = 1)
 
 
+
+
+
+plot = Figure(figsize=(6,4))
+
+canvas = FigureCanvasTkAgg(plot, master=toolsFrame)
+
+canvas.get_tk_widget().grid(row = 0, column = 4, columnspan=10, rowspan=8, sticky = W)
+
+
+calcStat = Label(toolsFrame, textvariable = values).grid(row = 7, column = 0, sticky =W)
+
+
 toolsFrame.grid()
-plotFrame = Frame(root)
-# plot = Figure()
-# plotCanvas = FigureCanvasTkAgg()
-
-
-
-plotFrame.grid()
 
 root.mainloop()
 
