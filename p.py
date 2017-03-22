@@ -61,6 +61,8 @@ values = []
 dates = []
 maxim = IntVar()
 label = StringVar()
+start = IntVar()
+end = IntVar()
 
 
 toolsFrame = Frame(root)
@@ -111,8 +113,6 @@ def query ():
   if checkedRange.get() == 1:
     rang = np.max(values) - np.min(values)
     print 'Range is ', rang
-
-  
 
 
 
@@ -170,8 +170,12 @@ maxValue = Checkbutton(toolsFrame, variable = checkedMax, onvalue=1, offvalue=0,
 
 rangeValue = Checkbutton(toolsFrame,  variable = checkedRange, onvalue=1, offvalue=0, text = 'Range').grid(row = 5, column = 0, sticky = W, padx = (8,0), pady = (0,20))
 
+startLabel = Label(toolsFrame, text = 'Start Year').grid(row = 6, column = 0)
+startYear = Entry(toolsFrame).grid(row = 6, column = 1)
+endLabel = Label(toolsFrame, text = 'End Year').grid(row = 7, column = 0)
+endYear = Entry(toolsFrame).grid(row = 7, column = 1)
 submitButton = Button(toolsFrame, text = 'Submit', command = query)
-submitButton.grid(row = 6, column = 1)
+submitButton.grid(row = 8, column = 1)
 
 
 
