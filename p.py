@@ -25,7 +25,7 @@ cursor = dbConnection.cursor()
 #main frame
 root = Tk()
 root.title('EconToolLab')
-root.geometry('1000x800')
+root.geometry('1300x900')
 
 
 
@@ -61,33 +61,46 @@ values = []
 dates = []
 maxim = IntVar()
 label = StringVar()
-start = IntVar()
-end = IntVar()
 
 
 toolsFrame = Frame(root)
 var = StringVar()
 
 
+
 def query ():
-  cursor.execute('SELECT * from [' + chosenIndicator.get()+'] order by date asc')
+  
+  cursor.execute('SELECT * from [' + chosenIndicator.get()+'] where strftime("%Y", date) between "' + startYear.get() +'" and "' + endYear.get() +'" order by date asc')
+  #cursor.execute('SELECT * from [' + chosenIndicator.get()+'] where strftime('%y', date) >= [' + startYear.get()+'] and strftime('%y', date) <= ['+ endYear.get() +'] order by date asc')
   for column in cursor:
-    print column[0],column[1], column[2], '\n'
+
     dates.append(str(column[1]))
+  
     values.append(column[2])
     datesValues = np.column_stack((dates, values))
-    print datesValues
+    rownumber=8
+
     label = StringVar()
     for date in dates:
-      label.set(date)
-    dataLabel = Label(toolsFrame, text = datesValues).grid()
+       label.set(date)
+    dataLabel = Label(toolsFrame, text = date).grid(column  = 0)
+    for value in values:
+       label.set(value)
+       rownumber+=1
+    valueLabel = Label(toolsFrame, text = value).grid(column = 1, row = rownumber)
+
+
 
   x = mdates.datestr2num(dates)
   y = values
   axes = plot.add_subplot(111)
+  axes.set_title(chosenIndicator.get())
+  axes.set_xlabel('year')
+  axes.set_ylabel('value')
   axes.plot(x, y)
   axes.xaxis_date()
   canvas.show() 
+
   
   if checkedMax.get() == 1:
     maxim = np.max(values)
@@ -113,6 +126,7 @@ def query ():
   if checkedRange.get() == 1:
     rang = np.max(values) - np.min(values)
     print 'Range is ', rang
+  
 
 
 
@@ -152,40 +166,42 @@ for indicator in(econIndicators.keys()):
 	for nestedIndicator in econIndicators[indicator]:
                 option.add_checkbutton(label=nestedIndicator, variable = chosenIndicator, onvalue=nestedIndicator, offvalue=0)
                 option.add_separator()
-nestedMenu.grid(columnspan = 2, sticky = W, padx = (4,10), pady = (18, 0))
+nestedMenu.grid(row =0, columnspan = 2, sticky = W, padx = (25,6), pady = (20, 0))
 
 
 
 #checkbuttons for statistical tools
-variance = Checkbutton(toolsFrame,  onvalue=1, variable = checkedVar, offvalue=0, text = 'Variance').grid(row = 2,column = 0, pady=(5,0), padx = (8,0), sticky = W)
+variance = Checkbutton(toolsFrame,  onvalue=1, variable = checkedVar, offvalue=0, text = 'Variance').grid(row = 1,column = 0, pady=(5,0), padx = (40,0), sticky = W)
 
-std = Checkbutton(toolsFrame, variable = checkedStd, onvalue=1, offvalue=0, text = 'Std.Deviation').grid(row = 2, column = 1, pady=(5,0), padx = (8,0), sticky= W)
+std = Checkbutton(toolsFrame, variable = checkedStd, onvalue=1, offvalue=0, text = 'Std.Deviation').grid(row = 1, column = 1, columnspan = 1, pady=(5,0),  sticky= W)
 
-mean = Checkbutton(toolsFrame, variable = checkedMean, onvalue=1, offvalue=0, text = 'Mean').grid(row = 3, column = 0, sticky = W, padx = (8,0))
-median = Checkbutton(toolsFrame,  variable = checkedMed, onvalue=1, offvalue=0, text = 'Median').grid(row = 3, column = 1, sticky = W, padx = (8,0))
-
-
-minValue = Checkbutton(toolsFrame,  variable = checkedMin, onvalue=1, offvalue=0, text = 'Minimum').grid(row = 4, column = 0, sticky = W, padx = (8,0))
-maxValue = Checkbutton(toolsFrame, variable = checkedMax, onvalue=1, offvalue=0, text = 'Maximum').grid(row = 4, column = 1, sticky = W, padx = (8,0))
-
-rangeValue = Checkbutton(toolsFrame,  variable = checkedRange, onvalue=1, offvalue=0, text = 'Range').grid(row = 5, column = 0, sticky = W, padx = (8,0), pady = (0,20))
-
-startLabel = Label(toolsFrame, text = 'Start Year').grid(row = 6, column = 0)
-startYear = Entry(toolsFrame).grid(row = 6, column = 1)
-endLabel = Label(toolsFrame, text = 'End Year').grid(row = 7, column = 0)
-endYear = Entry(toolsFrame).grid(row = 7, column = 1)
-submitButton = Button(toolsFrame, text = 'Submit', command = query)
-submitButton.grid(row = 8, column = 1)
+mean = Checkbutton(toolsFrame, variable = checkedMean, onvalue=1, offvalue=0, text = 'Mean').grid(row = 2, column = 0, sticky = W, padx = (40,0))
+median = Checkbutton(toolsFrame,  variable = checkedMed, onvalue=1, offvalue=0, text = 'Median').grid(row = 2, column = 1, sticky = W)
 
 
+minValue = Checkbutton(toolsFrame,  variable = checkedMin, onvalue=1, offvalue=0, text = 'Minimum').grid(row = 3, column = 0, sticky = W, padx = (40,0))
+maxValue = Checkbutton(toolsFrame, variable = checkedMax, onvalue=1, offvalue=0, text = 'Maximum').grid(row = 3, column = 1, sticky = W)
+
+rangeValue = Checkbutton(toolsFrame,  variable = checkedRange, onvalue=1, offvalue=0, text = 'Range').grid(row = 4, column = 0, sticky = W, padx = (40,0), pady = (0,8))
+
+startLabel = Label(toolsFrame, text = 'Start Year').grid(row = 5, column = 0, padx = (40,0),sticky = W)
+startYear = Entry(toolsFrame)
+startYear.grid(row = 5, column = 1, sticky = W)
+endLabel = Label(toolsFrame, text = 'End Year').grid(row = 6, column = 0, padx = (50,0), sticky=W)
+endYear = Entry(toolsFrame)
+endYear.grid(row = 6, column = 1, sticky = W)
+submitButton = Button(toolsFrame, text = 'Submit', width= 25, command = query)
+submitButton.grid(row = 8, column = 0, padx = (150,0))
 
 
 
-plot = Figure(figsize=(6,4))
+
+
+plot = Figure(figsize=(7,6))
 
 canvas = FigureCanvasTkAgg(plot, master=toolsFrame)
 
-canvas.get_tk_widget().grid(row = 0, column = 4, columnspan=10, rowspan=8, sticky = W)
+canvas.get_tk_widget().grid(row = 1, column = 3, columnspan=10, rowspan=6, sticky = W)
 
 
 calcStat = Label(toolsFrame, textvariable = values).grid(row = 7, column = 0, sticky =W)
