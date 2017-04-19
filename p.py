@@ -11,14 +11,10 @@ import matplotlib.dates as mdates
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-
-
-
   #connects to database
 dbConnection = sqlite3.connect('/Users/kimo/Desktop/project/EconLabTool.db')
 global cursor 
 cursor = dbConnection.cursor()
-
 
 #imports quandl csv data into sqlite
 # df = pandas.read_csv('House Price 1975_2016.csv')
