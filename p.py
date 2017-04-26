@@ -24,14 +24,12 @@ cursor = dbConnection.cursor()
 
 root = Tk()
 root.title('EconToolLab: Descriptive Statistics')
-root.geometry('750x850')
+root.geometry('1300x850')
 toolsFrame = Frame(root)
 toolsFrame.grid(sticky="nsew")
 toolsFrame.grid_rowconfigure(20, weight=1)
 toolsFrame.grid_columnconfigure(6, weight=1)
 var = StringVar()
-
-
 
 
 #top level menu for the main window
@@ -68,9 +66,7 @@ values = []
 dates = []
 maxim = IntVar()
 label = StringVar()
-
-
-
+color = StringVar()
 
 
 
@@ -92,7 +88,7 @@ def query ():
     values.append(column[2])
     index=0
     for date in dates:
-      listbox.insert(END, date+'             ' +str(values[index]))
+      listbox.insert(END, date+'               ' +str(values[index]))
       index+=1
   
   scrollbar.grid(row=0, column=7, sticky=N+S)
@@ -107,18 +103,18 @@ def query ():
     axes.set_title(chosenIndicator.get())
     axes.set_xlabel('year')
     axes.set_ylabel('value')
-    axes.plot(x, y)
+    axes.plot(x, y, color = color.get())
     axes.xaxis_date()
     canvas = FigureCanvasTkAgg(plot, master=toolsFrame)
     canvas.draw()
-    canvas.get_tk_widget().grid(row = 28, column = 0, columnspan=10, rowspan=6, sticky = NW)
+    canvas.get_tk_widget().grid(row = 11, column = 12, columnspan=5, rowspan=10, sticky = NW)
   if checkedHist.get() == 1:
     plot = Figure(figsize=(6,4))
     axes = plot.add_subplot(111)
     axes.hist(y, bins = 10, rwidth=0.3, normed=True)
     canvas = FigureCanvasTkAgg(plot, master=toolsFrame)
 
-    canvas.get_tk_widget().grid(row = 28, column = 0, columnspan=10, rowspan=6, sticky = NW)
+    canvas.get_tk_widget().grid(row = 0, column = 12, columnspan=5, rowspan=10, sticky = NW)
     canvas.draw()
     
     calcStat = Label(toolsFrame, textvariable = values).grid(row = 7, column = 0, sticky ='NW')
@@ -127,33 +123,33 @@ def query ():
   if checkedMax.get() == 1:
     maxim = np.max(values)
     maxLabel = Label(toolsFrame, text = 'Maximum value is ' + str(maxim), fg = '#518242', font=('Helvetica', 15))
-    maxLabel.grid(column = 0, row = 11, sticky = W, padx=(20,0))
+    maxLabel.grid(column = 0, row = 15, sticky = W, padx=(20,0))
 
   if checkedMin.get() == 1:
     minim = np.min(values)
     minLabel = Label(toolsFrame, text = 'Minimum value is ' + str(minim), fg = '#518242', font=('Helvetica', 14))
-    minLabel.grid(column = 0, row = 12, sticky = W, padx=(20,0))
+    minLabel.grid(column = 0, row = 16, sticky = W, padx=(20,0))
   
 
   if checkedMean.get() == 1:
     mean = np.average(values)
     meanLabel = Label(toolsFrame, text = 'Mean value is ' + str(mean), fg = '#518242', font=('Helvetica', 14))
-    meanLabel.grid(column = 0, row = 13, sticky = W, padx=(20,0))
+    meanLabel.grid(column = 0, row = 17, sticky = W, padx=(20,0))
   
   if checkedStd.get() == 1:
     stdDev = np.std(values)
     stdLabel = Label(toolsFrame, text = 'Standard deviation is ' + str(stdDev), fg = '#518242', font=('Helvetica', 14))
-    stdLabel.grid(column = 0, row = 14, sticky = W, padx=(20,0))
+    stdLabel.grid(column = 0, row = 18, sticky = W, padx=(20,0))
   
   if checkedMed.get() == 1:
     median = np.median(values)
     medLabel = Label(toolsFrame, text = 'Median value is ' + str(median), fg = '#518242', font=('Helvetica', 14))
-    medLabel.grid(column = 0, row = 15, sticky = W, padx=(20,0))
+    medLabel.grid(column = 0, row = 19, sticky = W, padx=(20,0))
 
   if checkedRange.get() == 1:
     rang = np.max(values) - np.min(values)
     rangeLabel = Label(toolsFrame, text = 'Range is ' + str(rang), fg = '#518242', font=('Helvetica', 14))
-    rangeLabel.grid(column = 0, row = 16, sticky = W, padx=(20,0))
+    rangeLabel.grid(column = 0, row = 20, sticky = W, padx=(20,0))
   
 
 
@@ -210,7 +206,7 @@ minValue = Checkbutton(toolsFrame,  variable = checkedMin, onvalue=1, offvalue=0
 maxValue = Checkbutton(toolsFrame, variable = checkedMax, onvalue=1, offvalue=0, text = 'Maximum').grid(row = 4, column = 1, sticky = W, pady=(8,0))
 
 rangeValue = Checkbutton(toolsFrame,  variable = checkedRange, onvalue=1, offvalue=0, text = 'Range').grid(row = 5, column = 0, sticky = W, padx = (40,0), pady = (8,0))
-plotLabel = Label(toolsFrame, text = 'Plot Style:', font=('Helvetica 15 underline'))
+plotLabel = Label(toolsFrame, text = 'Plot Type:', font=('Helvetica 15 underline'))
 plotLabel.grid(row = 6,column = 0, pady=(30,0), padx = (40,0), sticky = W)
 plotValue = Checkbutton(toolsFrame,  variable = checkedPlot, text = 'Time Series Graph').grid(row = 7, column = 0, sticky = W, padx = (40,0), pady = (8,10))
 histValue = Checkbutton(toolsFrame,  variable = checkedHist, text = 'Histogram').grid(row = 7, column = 1, sticky = W, pady = (8,10))
@@ -220,8 +216,16 @@ startYear.grid(row = 8, column = 1, sticky = NW)
 endLabel = Label(toolsFrame, text = 'End Year').grid(row = 9, column = 0, padx = (40,0), sticky=NW)
 endYear = Entry(toolsFrame)
 endYear.grid(row = 9, column = 1, sticky = NW)
+
+customLabel = Label(toolsFrame, text = 'Custom Styles:', font=('Helvetica 15 underline'))
+customLabel.grid(row = 11,column = 0, pady=(20,0), padx = (40,0), sticky = W)
+
+color.set('green')
+colorPick = OptionMenu(toolsFrame, color, 'red', 'green', 'black', 'blue', 'orange', 'grey').grid(row=12, pady=(20,0), padx = (40,0), sticky = W )
+# startLabel = Label(toolsFrame, text = 'Start Year').grid(row = 8, column = 0, padx = (40,0),sticky = NW)
+# startYear = Entry(toolsFrame)
 submitButton = Button(toolsFrame, text = 'Submit', width= 10, command = query)
-submitButton.grid(row = 10, column = 1,  padx = (75,0), pady=(0,0), sticky=W)
+submitButton.grid(row = 14, column = 1,  padx = (75,0), pady=(0,0), sticky=W)
 
 
 
