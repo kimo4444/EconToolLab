@@ -1,4 +1,4 @@
-#### EconLabTool
+# EconLabTool
 
 Econ Tool Lab is an application aimed at students majoring in Economics. 
 It is an easy-to-use tool for visualization and analysis of economic data.
