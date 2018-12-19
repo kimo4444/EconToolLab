@@ -1,4 +1,4 @@
-# csci233project
+# EconLabTool
 
 
     Econ Tool Lab is an application aimed at students majoring in Economics. 
