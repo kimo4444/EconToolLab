@@ -16,7 +16,7 @@ variables and indicators, as well as statistical tools to analyze them.
 ## Requirements:
 Python installed
   
-## Installation
+## To run
 ```
  git clone https://github.com/kimo4444/EconToolLab.git
 ```
