@@ -1,3 +1,4 @@
+# NOTE: The legacy project. You will need python 2.7 to run it.
 # EconToolLab
 
 Econ Tool Lab is an application aimed at students majoring in Economics. 
@@ -14,7 +15,7 @@ variables and indicators, as well as statistical tools to analyze them.
   * Dynamic quantitative analysis (variance, standard deviation, correlation etc.) of data based on user’s input criteria using Python Numpy library. 
   
 ## Requirements:
-Python installed
+Python 2.7, matplotlib, pandas installed
   
 ## To run
 ```
