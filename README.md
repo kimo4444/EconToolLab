@@ -1,4 +1,5 @@
-# NOTE: The legacy project. You will need python 2.7 to run it.
+# NOTE: 
+You will need python 2.7 and corresponding versions of pandas and matplotlib to run it.
 # EconToolLab
 
 Econ Tool Lab is an application aimed at students majoring in Economics. 
