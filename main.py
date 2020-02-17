@@ -26,11 +26,12 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkMessageBox
 import ttk
+import os
 
 
 #establishing database connection
 
-dbConnection = sqlite3.connect('/Users/kimo/Desktop/project/EconLabTool.db')
+dbConnection = sqlite3.connect(os.path.dirname(os.path.realpath(__file__))+'/EconLabTool.db')
 global cursor 
 cursor = dbConnection.cursor()
 
@@ -494,7 +495,7 @@ class App:
       
 
     #displaying app logo. Logo is from logologo.com. Royalty free.
-    photo = PhotoImage(file='/Users/kimo/Desktop/project/graph-logo.gif')
+    photo = PhotoImage(file=os.path.dirname(os.path.realpath(__file__))+'/logo.gif')
     appLogo = Label(navFrame, image = photo)
 
     appLogo.image = photo
